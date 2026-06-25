@@ -1,52 +1,49 @@
-import { describe, it, expect } from "vitest";
-import { capitalize, truncate } from "./string-utils";
+import { describe, it, expect } from 'vitest';
+import { capitalize, truncate } from './string-utils';
 
-describe("capitalize", () => {
-  it("returns empty string when given empty string", () => {
-    expect(capitalize("")).toBe("");
+describe('capitalize', () => {
+  it('returns empty string unchanged', () => {
+    expect(capitalize('')).toBe('');
   });
 
-  it("capitalizes the first character", () => {
-    expect(capitalize("hello")).toBe("Hello");
+  it('capitalizes first character of a lowercase word', () => {
+    expect(capitalize('hello')).toBe('Hello');
   });
 
-  it("leaves already-capitalized strings unchanged", () => {
-    expect(capitalize("World")).toBe("World");
+  it('leaves already-capitalized strings unchanged', () => {
+    expect(capitalize('World')).toBe('World');
   });
 
-  it("only changes the first character", () => {
-    expect(capitalize("hELLO")).toBe("HELLO");
+  it('handles single character', () => {
+    expect(capitalize('a')).toBe('A');
   });
 
-  it("handles single character strings", () => {
-    expect(capitalize("a")).toBe("A");
+  it('does not affect the rest of the string', () => {
+    expect(capitalize('hELLO')).toBe('HELLO');
   });
 });
 
-describe("truncate", () => {
-  it("returns the string unchanged when shorter than n", () => {
-    expect(truncate("hi", 10)).toBe("hi");
+describe('truncate', () => {
+  it('returns the string unchanged when shorter than n', () => {
+    expect(truncate('hi', 10)).toBe('hi');
   });
 
-  it("returns the string unchanged when length equals n", () => {
-    expect(truncate("hello", 5)).toBe("hello");
+  it('returns the string unchanged when length equals n', () => {
+    expect(truncate('hello', 5)).toBe('hello');
   });
 
-  it("truncates with ellipsis when longer than n and n > 3", () => {
-    expect(truncate("hello world", 8)).toBe("hello...");
+  it('truncates and appends ellipsis when longer than n', () => {
+    expect(truncate('hello world', 8)).toBe('hello...');
   });
 
-  it("slices without ellipsis when n <= 3", () => {
-    expect(truncate("hello", 3)).toBe("hel");
-    expect(truncate("hello", 1)).toBe("h");
-    expect(truncate("hello", 0)).toBe("");
+  it('returns only dots when n <= 3 and string is longer', () => {
+    expect(truncate('hello', 3)).toBe('...');
+    expect(truncate('hello', 2)).toBe('..');
+    expect(truncate('hello', 1)).toBe('.');
+    expect(truncate('hello', 0)).toBe('');
   });
 
-  it("throws RangeError for negative n", () => {
-    expect(() => truncate("hi", -1)).toThrow(RangeError);
-  });
-
-  it("handles empty string input", () => {
-    expect(truncate("", 5)).toBe("");
+  it('throws on negative n', () => {
+    expect(() => truncate('hello', -1)).toThrow(RangeError);
   });
 });

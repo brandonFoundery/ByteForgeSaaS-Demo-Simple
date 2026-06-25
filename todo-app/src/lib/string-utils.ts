@@ -4,8 +4,8 @@ export function capitalize(s: string): string {
 }
 
 export function truncate(s: string, n: number): string {
-  if (n < 0) throw new RangeError("n must be non-negative");
+  if (n < 0) throw new RangeError('n must be non-negative');
   if (s.length <= n) return s;
-  if (n <= 3) return s.slice(0, n);
-  return s.slice(0, n - 3) + "...";
+  if (n <= 3) return '.'.repeat(n);
+  return s.slice(0, n - 3) + '...';
 }
