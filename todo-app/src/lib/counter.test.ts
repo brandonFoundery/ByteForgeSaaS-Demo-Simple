@@ -6,6 +6,7 @@ describe('counter', () => {
   it('decrements', () => expect(decrement(2)).toBe(1));
   it('clamps negatives to zero', () => expect(clampNonNegative(-5)).toBe(0));
   it('passes through non-negatives', () => expect(clampNonNegative(3)).toBe(3));
+  it('returns 0 for NaN', () => expect(clampNonNegative(NaN)).toBe(0));
 });
 
 describe('multiply', () => {
