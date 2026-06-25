@@ -1,5 +1,5 @@
 export function clamp(n: number, lo: number, hi: number): number {
-  if (lo > hi) throw new Error("clamp: lo must be <= hi");
+  if (lo > hi) throw new Error("lo must be <= hi");
   if (n < lo) return lo;
   if (n > hi) return hi;
   return n;
