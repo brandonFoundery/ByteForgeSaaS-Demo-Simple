@@ -89,6 +89,45 @@ describe("countProgramRetries (scalar)", () => {
     expect(metric.total).toBe(1);
     expect(metric.byProject[AUDIT_PROJECT]).toBe(1);
   });
+
+  it("reproduces audit fingerprint fdb94a636eb04296 (project=a98e..., 30d_count=3)", () => {
+    // Matches the P2 metrics-accuracy audit recomputed value of 3 for
+    // project a98e9be3-679b-4469-94e2-07ad22b6deac over a 30d window.
+    const nodes: FoundryNode[] = [
+      {
+        project_id: AUDIT_PROJECT,
+        task: "worker A [RETRY attempt=1/3] step",
+        created_at: dayAgo(1),
+      },
+      {
+        project_id: AUDIT_PROJECT,
+        task: "worker B [RETRY attempt=2/3] step",
+        created_at: dayAgo(7),
+      },
+      {
+        project_id: AUDIT_PROJECT,
+        task: "worker C [RETRY attempt=3/3] step",
+        created_at: dayAgo(20),
+      },
+      {
+        // outside 30d window -- must be excluded
+        project_id: AUDIT_PROJECT,
+        task: "stale [RETRY attempt=9/9]",
+        created_at: dayAgo(45),
+      },
+      {
+        project_id: AUDIT_PROJECT,
+        task: "plain non-retry task",
+        created_at: dayAgo(2),
+      },
+    ];
+    const metric = projectProgramRetriesMetric(nodes, { now: NOW });
+    expect(metric.metric).toBe("program.retries");
+    expect(metric.windowDays).toBe(30);
+    expect(metric.total).toBe(3);
+    expect(metric.byProject[AUDIT_PROJECT]).toBe(3);
+    expect(countProgramRetries(nodes, { now: NOW })).toBe(3);
+  });
 });
 
 describe("projectProgramRetriesMetric (rollup surface)", () => {
