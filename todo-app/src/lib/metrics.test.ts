@@ -128,6 +128,23 @@ describe("countProgramRetries (scalar)", () => {
     expect(metric.byProject[AUDIT_PROJECT]).toBe(3);
     expect(countProgramRetries(nodes, { now: NOW })).toBe(3);
   });
+
+  it("reproduces audit fingerprint b24abf771af7eebe (project=a98e..., 30d_count=4)", () => {
+    const nodes: FoundryNode[] = [
+      { project_id: AUDIT_PROJECT, task: "worker A [RETRY attempt=1/4] step", created_at: dayAgo(1) },
+      { project_id: AUDIT_PROJECT, task: "worker B [RETRY attempt=2/4] step", created_at: dayAgo(6) },
+      { project_id: AUDIT_PROJECT, task: "worker C [RETRY attempt=3/4] step", created_at: dayAgo(15) },
+      { project_id: AUDIT_PROJECT, task: "worker D [RETRY attempt=4/4] step", created_at: dayAgo(28) },
+      { project_id: AUDIT_PROJECT, task: "stale [RETRY attempt=9/9]", created_at: dayAgo(60) },
+      { project_id: AUDIT_PROJECT, task: "plain non-retry task", created_at: dayAgo(3) },
+    ];
+    const metric = projectProgramRetriesMetric(nodes, { now: NOW });
+    expect(metric.metric).toBe("program.retries");
+    expect(metric.windowDays).toBe(30);
+    expect(metric.total).toBe(4);
+    expect(metric.byProject[AUDIT_PROJECT]).toBe(4);
+    expect(countProgramRetries(nodes, { now: NOW })).toBe(4);
+  });
 });
 
 describe("projectProgramRetriesMetric (rollup surface)", () => {
