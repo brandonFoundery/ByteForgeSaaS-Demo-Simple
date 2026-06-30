@@ -100,6 +100,27 @@ describe("program.retries rollup surface (buildProgramRetriesResponse)", () => {
     expect(out.byProject[AUDIT_PROJECT]).toBe(5);
   });
 
+  it("reproduces audit fingerprint 9ebd37d280e5893b: 30d_count=6 over rollup surface", () => {
+    const body: ProgramRetriesRequestBody = {
+      now: NOW,
+      nodes: [
+        { project_id: AUDIT_PROJECT, task: "a [RETRY attempt=1/6]", created_at: dayAgo(1) },
+        { project_id: AUDIT_PROJECT, task: "b [RETRY attempt=2/6]", created_at: dayAgo(4) },
+        { project_id: AUDIT_PROJECT, task: "c [RETRY attempt=3/6]", created_at: dayAgo(10) },
+        { project_id: AUDIT_PROJECT, task: "d [RETRY attempt=4/6]", created_at: dayAgo(16) },
+        { project_id: AUDIT_PROJECT, task: "e [RETRY attempt=5/6]", created_at: dayAgo(22) },
+        { project_id: AUDIT_PROJECT, task: "f [RETRY attempt=6/6]", created_at: dayAgo(29) },
+        { project_id: AUDIT_PROJECT, task: "stale [RETRY attempt=9/9]", created_at: dayAgo(90) },
+        { project_id: AUDIT_PROJECT, task: "plain task no marker", created_at: dayAgo(2) },
+      ],
+    };
+    const out = buildProgramRetriesResponse(body);
+    expect(out.metric).toBe("program.retries");
+    expect(out.windowDays).toBe(30);
+    expect(out.total).toBe(6);
+    expect(out.byProject[AUDIT_PROJECT]).toBe(6);
+  });
+
   it("returns an empty rollup shape when no nodes are supplied", () => {
     const out = buildProgramRetriesResponse({ nodes: [], now: NOW });
     expect(out).toEqual({
