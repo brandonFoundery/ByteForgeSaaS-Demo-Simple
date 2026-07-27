@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
+import MedicationAdherenceCard from "@/components/MedicationAdherenceCard";
+import type { DoseRecord, Medication } from "@/lib/adherence";
 
 interface Todo {
   id: number;
@@ -8,9 +11,37 @@ interface Todo {
   completed: boolean;
 }
 
+/** Builds a 30-day dose log where roughly `takenRatio` of doses were taken. */
+function buildDoseLog(now: number, takenRatio: number): DoseRecord[] {
+  const days = 30;
+  const takenCount = Math.round(days * takenRatio);
+  return Array.from({ length: days }, (_, i) => ({
+    date: new Date(now - i * 24 * 60 * 60 * 1000).toISOString(),
+    taken: i < takenCount,
+  }));
+}
+
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputValue, setInputValue] = useState("");
+
+  const medications = useMemo<Medication[]>(() => {
+    const now = Date.now();
+    return [
+      {
+        id: "lisinopril",
+        name: "Lisinopril",
+        dosage: "10 mg daily",
+        doses: buildDoseLog(now, 0.93),
+      },
+      {
+        id: "metformin",
+        name: "Metformin",
+        dosage: "500 mg twice daily",
+        doses: buildDoseLog(now, 0.67),
+      },
+    ];
+  }, []);
 
   const addTodo = () => {
     if (inputValue.trim() === "") return;
@@ -49,6 +80,11 @@ export default function Home() {
         <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
           Todo App
         </h1>
+
+        {/* Medication Adherence */}
+        <div className="mb-6">
+          <MedicationAdherenceCard medications={medications} />
+        </div>
 
         {/* Add Todo Input */}
         <div className="flex gap-2 mb-6">
